@@ -15,6 +15,8 @@
  */
 package engine3d;
 
+import com.jogamp.opengl.util.texture.Texture;
+
 /**
  *
  * @author Barend Scholtus
@@ -22,59 +24,41 @@ package engine3d;
 public class Polygon {
 
     /**  */
-    protected Vertex a;
+    protected final Vertex3f[] vertices;
     /**  */
-    protected Vertex b;
+    protected final Color3f[] colors;
     /**  */
-    protected Vertex c;
+    protected final Texture texture;
     /**  */
-    protected double A, B, C, D;
+    public  final TexCoord2f[] texCoords;
 
     /**
      *
      */
-    public Polygon(final Vertex a, final Vertex b, final Vertex c) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
+    public Polygon(final Vertex3f[] vertices, final Color3f[] colors,
+            final Texture texture, final TexCoord2f[] texCoords) {
+        this.vertices = vertices;
+        this.colors = colors;
+        this.texture = texture;
+        this.texCoords = texCoords;
     }
 
     /**
-     * Returns a deep copy of this Polygon object.
+     * Returns a deep copy of this Polygon object. The vertices and colors are
+     * duplicated. However, the Texture points to the same OpenGL texture, and
+     * the texture coordinates are the same as well.
      * @return the copy
      */
-    public Polygon copy() {
-        return new Polygon(a, b, c);
-    }
-
-    /**
-     *
-     */
-    public void abcd() {
-        double Ux = b.x - a.x;
-        double Uy = b.y - a.y;
-        double Uz = b.z - a.z;
-        double Vx = c.x - a.x;
-        double Vy = c.y - a.y;
-        double Vz = c.z - a.z;
-        A = Uy * Vz - Vy * Uz;
-        B = Uz * Vx - Vz * Ux;
-        C = Ux * Vy - Vx * Uy;
-        double len = Math.sqrt(A * A + B * B + C * C);
-        A /= len;
-        B /= len;
-        C /= len;
-        D = A * a.x + B * a.y + C * a.z;
-    }
-
-    /**
-     *
-     * @param viewX
-     * @param viewY
-     * @param viewZ
-     */
-    public double dotProduct(float viewX, float viewY, int viewZ) {
-        return A * viewX + B * viewY + C * viewZ - D;
+    public final Polygon copy() {
+        Vertex3f[] v = new Vertex3f[vertices.length];
+        for (int i = 0; i < v.length; i++) {
+            v[i] = vertices[i].copy();
+        }
+        Color3f[] c = new Color3f[colors.length];
+        for (int i = 0; i < c.length; i++) {
+            c[i] = colors[i].copy();
+        }
+        return new Polygon(v, c, texture, texCoords);
     }
 
     /**
@@ -82,7 +66,14 @@ public class Polygon {
      */
     @Override
     public String toString() {
-        return new StringBuilder(100).append(a).append(' ').append(b).append(' ').
-                append(c).toString();
+        // length of Vertex.toString is 27 if (xxxx.xx, xxxx.xx, xxxx.xx)
+        StringBuilder sb = new StringBuilder(30*vertices.length);
+        for (int i = 0; i < vertices.length; i++) {
+            if (i != 0) {
+                sb.append(' ');
+            }
+            sb.append(vertices[i]);
+        }
+        return sb.toString();
     }
 }

@@ -1,3 +1,6 @@
 
 /build/
 /dist/
+/images/
+/lib/javadoc_gluegen/
+/lib/javadoc_public_jogl/
